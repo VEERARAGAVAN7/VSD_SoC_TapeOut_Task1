@@ -86,6 +86,7 @@ This improves collaboration and tool compatibility.
 
 ## 🧱 High-Level Architecture
 
+```
 +-----------------------------------------------------+
 |                      Caravel                       |
 |                                                     |
@@ -100,7 +101,7 @@ This improves collaboration and tool compatibility.
 |                                                     |
 |  Padframe  | Clocking | Power Routing | SPI Flash   |
 +-----------------------------------------------------+
-
+```
 
 
 ## 🚀 What You Can Do with Caravel
