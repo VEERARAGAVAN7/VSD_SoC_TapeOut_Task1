@@ -108,7 +108,7 @@ Initialize the Synopsys tool environment using the provided setup script:
 
 ```bash
 csh
-source toolRC_iitgntapeout
+source ~/toolRC_iitgntapeout
 ```
 
 **What this script configures:**
