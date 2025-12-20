@@ -270,8 +270,8 @@ The Housekeeping module is a **SPI responder** that does not rely on SRAM for st
 - Data path is simple: SPI input → shift register → output
 - No dependency on SRAM initialization for basic operation
 
-![Alt Text](Screenshots/hkspi_pass.png)
-
+![Alt Text](Screenshots/hkspi_rtl_pass.png)
+![Alt Text](Screenshots/hkspi_gls_pass.png)
 
 **GLS Result**: All synchronous logic initializes cleanly via reset; no X-propagation.
 
