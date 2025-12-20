@@ -15,7 +15,7 @@ This document presents the design validation results of the **Housekeeping SPI (
 
 ### RTL Waveform - Reset Initialization
 
-![RTL Simulation - Reset Sequence](Screenshots/hkspi_rtl.png)
+![RTL Simulation - Reset Sequence](Screenshot/hkspi_rtl.png)
 
 *Screenshot showing clock, external_resetb, and register state signals during reset initialization*
 
@@ -32,19 +32,19 @@ This document presents the design validation results of the **Housekeeping SPI (
 
 ### Design Compiler Summary
 
-![Synthesis Report](Screenshots/synth.png)
+![Synthesis Report](Screenshot/synth.png)
 
 *Screenshot showing Design Compiler area, timing, and power summary*
 
 ### Timing Analysis
 
-![Timing Report](Screenshots/05_timing_analysis.png)
+![Timing Report](Screenshot/05_timing_analysis.png)
 
 *Screenshot showing setup/hold slack and critical path with no violations*
 
 ### Area Breakdown
 
-![Area Report](Screenshots/06_area_breakdown.png)
+![Area Report](Screenshot/06_area_breakdown.png)
 
 *Screenshot showing cell count, area distribution, and comparison metrics*
 
@@ -54,7 +54,7 @@ This document presents the design validation results of the **Housekeeping SPI (
 
 ### GLS Waveform - Reset Synchronization (Post-SDF)
 
-![GLS Reset Waveform](Screenshots/hkspi_gls.png)
+![GLS Reset Waveform](Screenshot/hkspi_gls.png)
 
 ![GLS Reset Waveform](waveforms/GLS.png)
 *Screenshot showing SDF-annotated reset synchronizer timing with metastability resolution*
