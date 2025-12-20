@@ -90,7 +90,7 @@ Wire Load Model Mode: enclosed
 
 1
 </details>
---
+
 ### Area Breakdown
 
 <details> <summary><strong>Area Breakdown</strong></summary>
@@ -176,7 +176,7 @@ Total area:                     864080.472376
 Information: This design contains black box (unknown) components. (RPT-8)
 1
 </details>
---
+
 ### Quality of Results
 
 <details> <summary><strong>Quality of Results</strong></summary>
@@ -262,11 +262,9 @@ Date   : Tue Dec 16 19:11:19 2025
   Design (Hold)  WNS: 0.00  TNS: 0.00  Number of Violating Paths: 0
 
   --------------------------------------------------------------------
-
-
 1
 </details>
---
+
 ### Power Analysis
 
 <details> <summary><strong>Power Analysis</strong></summary>
@@ -3016,8 +3014,6 @@ Total             49.3960 mW        32.6130 mW     1.2437e+06 pW        82.0105 
 1
 </details>
 
---
-
 ### Contraints
 
 <details> <summary><strong>Contraints</strong></summary>
@@ -3126,7 +3122,7 @@ Date   : Tue Dec 16 19:11:19 2025
 
 ![GLS Reset Waveform](Screenshot/hkspi_gls.png)
 
-![GLS Reset Waveform](waveforms/GLS.png)
+![GLS Reset Waveform](waveform/GLS.png)
 *Screenshot showing SDF-annotated reset synchronizer timing with metastability resolution*
 
 ---
