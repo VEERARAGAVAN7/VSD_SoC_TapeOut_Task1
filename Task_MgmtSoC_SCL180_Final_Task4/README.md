@@ -382,11 +382,11 @@ Before advancing to synthesis and GLS, the following must be verified:
 ║                                                               ║
 ║  Module                          RTL Status      GLS Status   ║
 ║  ─────────────────────────────────────────────────────────    ║
-║  Housekeeping SPI                ✅ PASS          ✅ PASS    ║
-║  GPIO Configuration              ❌ FAIL          ⊘ BLOCKED  ║
-║  User Project Control            ❌ FAIL          ⊘ BLOCKED  ║
-║  Storage Interfaces              ❌ FAIL          ⊘ BLOCKED  ║
-║  IRQ Behavior                    ❌ FAIL          ⊘ BLOCKED  ║
+║  Housekeeping SPI                ✅ PASS          ✅ PASS     ║
+║  GPIO Configuration              ❌ FAIL          ⊘ BLOCKED   ║
+║  User Project Control            ❌ FAIL          ⊘ BLOCKED   ║
+║  Storage Interfaces              ❌ FAIL          ⊘ BLOCKED   ║
+║  IRQ Behavior                    ❌ FAIL          ⊘ BLOCKED   ║
 ║                                                               ║
 ║  Overall DV Status: 20% complete (1/5 modules ready)          ║
 ║                                                               ║
