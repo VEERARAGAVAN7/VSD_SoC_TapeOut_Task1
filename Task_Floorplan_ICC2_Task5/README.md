@@ -1,6 +1,6 @@
 # Task 5: SoC Floorplanning Using ICC2 (Floorplan Only)
 
-A floorplan-only implementation of the vsdcaravel SoC using Synopsys ICC2, targeting fixed die dimensions of **3.588 mm × 5.188 mm** on SCL 180 nm technology with reserved IO bands around the core.
+A floorplan-only implementation of the raven_wrapper Processor using Synopsys ICC2, targeting fixed die dimensions of **3.588 mm × 5.188 mm** on SCL 180 nm technology with reserved IO bands around the core.
 
 ---
 
@@ -11,7 +11,7 @@ This project corresponds to **Task 5: SoC Floorplanning Using ICC2**, with a str
 **Scope & Constraints:**
 
 - ✓ Floorplan-only, no placement, CTS, routing, or IR/EM analysis
-- ✓ No macros or memory hard IPs; vsdcaravel memories are synthesized logic
+- ✓ No macros or memory hard IPs; raven memories are synthesized logic
 - ✓ Synthesized netlist is imported only to provide design context and ports
 - ✓ Verification is via reports and GUI visualization, not timing closure
 
@@ -25,7 +25,7 @@ Ensure the following environment inputs are available before running the Tcl flo
 
 - **Synopsys ICC2 2022.12** (or compatible) installation with valid license
 - **SCL 180 nm** PDK reference NDM library (standard cells + tech data)
-- **Pre-synthesized vsdcaravel** Verilog netlist
+- **Pre-synthesized raven** Verilog netlist
 - Linux shell with Tcl support for batch runs and scripting
 
 ### Running the Floorplan Flow
@@ -50,7 +50,7 @@ gui_show_man_page      ;# Optional: view floorplan in GUI
 
 | Output | Purpose |
 |--------|---------|
-| `vsdcaravel_fp_lib/` | ICC2 design library in NDM format |
+| `raven_fp_lib/` | ICC2 design library in NDM format |
 | `reports/floorplan_report.txt` | Text summary of die/core bounds and ports |
 | GUI floorplan view | Visual confirmation of geometry and IO bands |
 
@@ -75,10 +75,10 @@ Total Area  : 18.606 mm²
 initialize_floorplan \
     -control_type die \
     -boundary {{0 0} {3588 5188}} \
-    -core_offset {200 200 200 200}
+    -core_offset {300 300 300 300}
 ```
 
-This creates a rectangular die with a core inset by 200 µm on all sides, leaving a continuous peripheral band for IO and power structures.
+This creates a rectangular die with a core inset by 300 µm on all sides, leaving a continuous peripheral band for IO and power structures.
 
 **Why These Dimensions?**
 
@@ -139,126 +139,34 @@ create_placement_blockage \
 ```
 
 ---
+## 📊 floorplanning Using Synonpsys ICC2 
 
-## 🔧 Script Architecture
-
-The `scripts/floorplan.tcl` automation is organized into five sequential phases for clarity and reproducibility.
-
-### Phase 1️⃣ – Design Initialization
-
-```tcl
-set DESIGN_NAME      vsdcaravel
-set DESIGN_LIBRARY   vsdcaravel_fp_lib
-set REF_LIB          "/path/to/lib.ndm"
+commands to access the Synopsys tools:
+```csh
+csh
+source ~/tooliitgn
 ```
 
-**Responsibilities:**
+Go to the directory "~/icc2Workshop/standalone" and use this commands
+- make sure the tcl scripts exist in the current directory
 
-- Establish design naming convention for traceability
-- Set library name that will be created in current workspace
-- Reference technology library path pointing to SCL 180 nm PDK
-
-The unified NDM library contains all standard cell definitions, technology layers, and design rules from the foundry PDK.
-
-### Phase 2️⃣ – Library Setup
-
-```tcl
-# Clean old runs to avoid stale data
-if {[file exists $DESIGN_LIBRARY]} {
-    file delete -force $DESIGN_LIBRARY
-}
-
-# Create fresh ICC2 library
-create_lib $DESIGN_LIBRARY -ref_libs $REF_LIB
-```
-
-**Key Points:**
-
-- Removes any previous library artifacts, locks, and temporary files
-- Ensures reproducible execution by starting from a clean state
-- Creates new ICC2 design library referencing the technology PDK
-- Prevents issues from stale .icv_lock files or partially written databases
-
-### Phase 3️⃣ – Design Import
-
-```tcl
-read_verilog -top $DESIGN_NAME \
-  "/home/veera_synop/vsdcaravel/synthesis/output/vsdcaravel_synthesis.v"
-current_design $DESIGN_NAME
+```csh
+icc2_shell -f floorplan.tcl | tee floorplan.log
 ```
 ![Alt Text](images/fp1.png)
 
-**What Happens:**
+To see the visualizations of Floorplanned design:
 
-- Reads synthesized netlist containing vsdcaravel top-level module
-- Imports all port declarations for IO planning
-- Establishes design context within the ICC2 library
-- Minor unresolved cell references are acceptable at this stage since timing closure is out of scope
-
-**Note:** The netlist should be the output of a standard Verilog synthesis flow (Synopsys DC or similar) with hierarchies flattened to top level for floorplanning simplicity.
-
-### Phase 4️⃣ – Geometric Definition
-
-```tcl
-# Die and core boundaries
-initialize_floorplan \
-    -control_type die \
-    -boundary {{0 0} {3588 5188}} \
-    -core_offset {200 200 200 200}
-
-# IO region blockages
-create_placement_blockage \
-  -name IO_BOTTOM -type hard \
-  -boundary {{0 0} {3588 100}}
-
-create_placement_blockage \
-  -name IO_TOP -type hard \
-  -boundary {{0 5088} {3588 5188}}
-
-create_placement_blockage \
-  -name IO_LEFT -type hard \
-  -boundary {{0 100} {100 5088}}
-
-create_placement_blockage \
-  -name IO_RIGHT -type hard \
-  -boundary {{3488 100} {3588 5088}}
+```csh
+iic2_shell> start_gui
 ```
 ![Alt Text](images/fp2.png)
+The above visuals declares that the IO blocks are not properly placed inside the IO Pads area of the design
 
-**Outcomes:**
+The few coordinates changes in the file "pads_contraints.tcl" solves the above problem but the ports are not placed as per the ports order but placed perfectly in the IO Pad area
 
-- Defines absolute die and core rectangles in microns
-- Creates permanent IO band restrictions visible to placement algorithms
-- No placement or routing commands follow—geometry is finalized here
-- All hard blockages are registered in the design database for downstream tools
-
-### Phase 5️⃣ – Verification & Reporting
-
-```tcl
-redirect -file ../reports/floorplan_report.txt {
-    puts "===== FLOORPLAN GEOMETRY ====="
-    puts "Die Area  : 0 0 3588 5188  (microns)"
-    puts "Core Area : 200 200 3388 4988  (microns)"
-    puts "Die Size  : 3.588 mm × 5.188 mm"
-    puts "Total Area: 18.606 mm²"
-    
-    puts "\n===== TOP LEVEL PORTS ====="
-    get_ports
-    
-    puts "\n===== PLACEMENT BLOCKAGES ====="
-    get_placement_blockages
-}
-```
-![Alt Text](images/fp3.png)
-
-**Report Contents:**
-
-- Die and core extents for documentation
-- Complete port inventory for IO planning verification
-- List of all blockages confirming IO ring setup
-- Audit trail for design review and sign-off
-
----
+After making the changes in the respective file the design will look like:
+![Alt Text](images/fp2.png)
 
 ## 📊 Port Placement & Visualization
 
@@ -269,9 +177,16 @@ After script execution, ports can be auto-placed for visualization:
 ```tcl
 place_ports -self
 ```
-
 ![Alt Text](images/fp4.png)
+
 --
+## 📊 DEF Creation
+Commands to create .def file in the tcl command terminal in gui/shell
+
+```csh
+write _def raven_wrapper.floorplan.def
+```
+
 ![Alt Text](images/fp5.png)
 
 **What This Command Does:**
@@ -433,9 +348,6 @@ Task_Floorplan_ICC2/
 │   ├── floorplan_screenshot_2.png ← IO blockages visualization
 │   └── floorplan_screenshot_3.png ← Port distribution view
 │
-├── data/
-│   └── die_dimensions.json        ← Machine-readable config
-│
 └── README.md                       ← Project overview
 ```
 
@@ -445,19 +357,11 @@ This structure maintains clear separation between automation (scripts), generate
 
 ## 🔄 Modifications from Reference Flow
 
-The ICC2 workshop reference script (raven_wrapper) required significant adaptations for the vsdcaravel SoC:
-
-| Element | Reference Flow | This Implementation | Rationale |
-|---------|---|---|---|
-| **Design Name** | raven_wrapper | vsdcaravel | Target SoC name |
-| **PDK** | Generic Nangate 45nm | SCL 180 nm | Foundry-specific library |
-| **Netlist Source** | Generated internally | Pre-synthesized .v file | Production synthesis workflow |
-| **Die Control** | Macro-driven initialization | Explicit coordinate pair | Fixed die dimensions |
-| **Core Margin** | Per-side variable assignment | Uniform 200 µm constant | Consistency and simplicity |
-| **IO Strategy** | Named regions + ring layout | Hard blockages only | Floorplan-only scope |
-| **Flow Extent** | Full P&R (floorplan→route) | Stops post-floorplan | Task boundary |
-| **Output Scope** | Complete physical database | Minimal (NDM + report) | Lean for learning focus |
-| **Documentation** | Sparse | Comprehensive reports | Traceability and review |
+The ICC2 workshop reference script (raven_wrapper) required significant changes:
+- Paths changes to my local directory in various .tcl files like
+    - iic2_common_setup.tcl
+    - iic2_dp_setup.tcl
+    - *parasitic.tcl
 
 ---
 
@@ -484,7 +388,7 @@ Symptom: Warning messages about cells not found in libraries
 Cause:   Netlist instantiates cells absent from reference library
 Fix:     This is expected for floorplan-only scope where placement is skipped
          Optionally add -continue_on_error flag to suppress warnings:
-         read_verilog -continue_on_error -top $DESIGN_NAME vsdcaravel.v
+         read_verilog -continue_on_error -top $DESIGN_NAME raven.v
 ```
 
 At the floorplan stage, only geometry and port inventory matter; full library completeness is not required.
@@ -521,9 +425,9 @@ Port placement is a separate step from port definition and may require explicit 
 Symptom: ICC2 process appears stuck or does not complete
 Cause:   Waiting for interactive input, library locked, or filesystem issue
 Fix:     1. Kill hanging process: pkill -9 icc2
-         2. Remove stale locks: rm -f vsdcaravel_fp_lib/.icv_lock
+         2. Remove stale locks: rm -f raven_fp_lib/.icv_lock
          3. Verify disk space: df -h (need >1GB free)
-         4. Check file permissions: ls -la vsdcaravel_fp_lib/
+         4. Check file permissions: ls -la raven_fp_lib/
          5. Re-run with timeout: timeout 300 icc2 -64bit -f floorplan.tcl
 Prevent: Use -no_gui flag in batch: icc2 -64bit -no_gui -f floorplan.tcl
 ```
@@ -568,9 +472,9 @@ A floorplan-only flow:
 - Enables rapid iteration on die dimensions and IO strategy
 - Reduces licensing overhead for tools and PDKs
 
-### Memory Organization in vsdcaravel
+### Memory Organization in raven
 
-vsdcaravel integrates **RAM128 and RAM256** structures as **synthesized logic** rather than as hard macro blocks. This design choice:
+raven integrates **RAM128 and RAM256** structures as **synthesized logic** rather than as hard macro blocks. This design choice:
 
 **Advantages:**
 - Simplifies floorplanning (no macro placement logic needed)
@@ -625,7 +529,7 @@ Even though this project stops at the floorplan stage, the following industry be
 
 **Principle:** Keep aspect ratio near 1:1 when possible to balance horizontal and vertical routing resources.
 
-**For vsdcaravel:**
+**For raven:**
 - Current aspect ratio: 5.188 / 3.588 ≈ 1.44:1
 - This is acceptable for a rectangular die; slightly wider dies are common in standard cells
 - Wider horizontal aspect favors horizontal metal layers (M1, M3, M5 in 180 nm)
@@ -655,7 +559,7 @@ create_routing_guide -name routing_corridor_h \
 
 **Principle:** Plan partitions and domains early so the floorplan remains scalable to full SoC flows.
 
-**Domains in vsdcaravel:**
+**Domains in raven:**
 - Core domain: 1.8 V logic
 - IO domain: 3.3 V IO, pads, ESD clamps
 - Analog domain: Optional PLL, voltage reference (if present)
@@ -669,7 +573,7 @@ create_routing_guide -name routing_corridor_h \
 
 **Principle:** Identify clock domains and plan clock tree distribution early.
 
-**For vsdcaravel:**
+**For raven:**
 - Main system clock (likely RISC-V SoC master clock)
 - Optional IO clock domain (if async interfaces present)
 - Test/scan clock (if DFT implemented)
