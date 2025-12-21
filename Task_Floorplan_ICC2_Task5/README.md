@@ -166,7 +166,7 @@ The above visuals declares that the IO blocks are not properly placed inside the
 The few coordinates changes in the file "pads_contraints.tcl" solves the above problem but the ports are not placed as per the ports order but placed perfectly in the IO Pad area
 
 After making the changes in the respective file the design will look like:
-![Alt Text](images/fp2.png)
+![Alt Text](images/fp3.png)
 
 ## 📊 Port Placement & Visualization
 
